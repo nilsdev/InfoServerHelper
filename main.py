@@ -76,7 +76,7 @@ async def _list(ctx):
     res += "```"
     await dm(ctx, res)
 
-@bot.command(name='rollen')
+@bot.command(name='role')
 async def _role(ctx, mode, role_name):
     # prepare
     res = await prepare(ctx)
