@@ -85,6 +85,10 @@ async def _role(ctx, mode, role_name):
         return
     (guild, allowed_here) = res
 
+    if mode not in ["add", "remove"]:
+        await dm(ctx, f"Unbekannter Modus `%s`" % mode)
+        return
+
     # make role_name lowercase
     role_name = role_name.lower()
 
