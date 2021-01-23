@@ -66,7 +66,7 @@ async def _list(ctx):
     # prepare
     res = await prepare(ctx)
     if res == None:
-        await dm(ctx, "Ein Fehler ist aufgetreten 🙁")
+        await dm(ctx, "Du kannst diesen Befehl nur von einem Server aus nutzen 🙁")
         return None
     (_, allowed_here) = res
 
@@ -81,7 +81,7 @@ async def _role(ctx, mode, role_name):
     # prepare
     res = await prepare(ctx)
     if res == None:
-        await dm(ctx, "Ein Fehler ist aufgetreten 🙁")
+        await dm(ctx, "Du kannst diesen Befehl nur von einem Server aus nutzen 🙁")
         return
     (guild, allowed_here) = res
 
