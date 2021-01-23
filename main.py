@@ -111,14 +111,14 @@ async def _role(ctx, mode, role_name):
             await ctx.author.remove_roles(role)
             print("%s hat %s nicht mehr" % (ctx.author, role))
             await dm(ctx,
-                f'Du hast nicht mehr die Rolle `%s`\nDu kannst sie mit `+rollen add %s` wieder hinzufügen' % (role, role)
+                f'Du hast nicht mehr die Rolle `%s`\nDu kannst sie mit `+role add %s` wieder hinzufügen' % (role, role)
             )
 
         elif mode == 'add':
             await ctx.author.add_roles(role)
             print("%s hat jetzt %s" % (ctx.author, role))
             await dm(ctx,
-                f'Du hast jetzt die Rolle `%s`\nDu kannst sie mit `+rollen remove %s` entfernen' % (role, role)
+                f'Du hast jetzt die Rolle `%s`\nDu kannst sie mit `+role remove %s` entfernen' % (role, role)
             )
         await ctx.message.add_reaction("✅")
 
