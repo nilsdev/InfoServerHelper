@@ -84,6 +84,9 @@ async def _role(ctx, mode, role_name):
         await dm(ctx, "Du kannst diesen Befehl nur von einem Server aus nutzen 🙁")
         return
     (guild, allowed_here) = res
+     
+    # make mode lowercase
+    mode = mode.lower()
 
     if mode not in ["add", "remove"]:
         await dm(ctx, f"Unbekannter Modus `%s`" % mode)
