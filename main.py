@@ -41,9 +41,9 @@ class Status(Enum):
 
 mod_text = "Schreibe einem der Mods, falls du dies für einen Fehler hälst."
 
-async def dm(to, text):
-    await to.create_dm()
-    await to.dm_channel.send(text)
+async def dm(ctx, text):
+    await ctx.author.create_dm()
+    await ctx.author.dm_channel.send(text)
 
 async def prepare(ctx):
     # get guild
@@ -66,7 +66,7 @@ async def _list(ctx):
     # prepare
     res = await prepare(ctx)
     if res == None:
-        await dm(ctx.author, "Ein Fehler ist aufgetreten 🙁")
+        await dm(ctx, "Ein Fehler ist aufgetreten 🙁")
         return None
     (_, allowed_here) = res
 
@@ -74,14 +74,14 @@ async def _list(ctx):
     for r in allowed_here:
         res += r + '\n'
     res += "```"
-    await dm(ctx.author, res)
+    await dm(ctx, res)
 
 @bot.command(name='rollen')
 async def _role(ctx, mode, role_name):
     # prepare
     res = await prepare(ctx)
     if res == None:
-        await dm(ctx.author, "Ein Fehler ist aufgetreten 🙁")
+        await dm(ctx, "Ein Fehler ist aufgetreten 🙁")
         return
     (guild, allowed_here) = res
 
@@ -106,27 +106,28 @@ async def _role(ctx, mode, role_name):
         if mode == 'remove':
             await ctx.author.remove_roles(role)
             print("%s hat %s nicht mehr" % (ctx.author, role))
-            await ctx.author.create_dm()
-            await ctx.author.dm_channel.send(
-                'Du hast nicht mehr die Rolle `%s`\nDu kannst sie mit `+rollen add %s` wieder hinzufügen' % (role, role)
+            await dm(ctx,
+                f'Du hast nicht mehr die Rolle `%s`\nDu kannst sie mit `+rollen add %s` wieder hinzufügen' % (role, role)
             )
+
         elif mode == 'add':
             await ctx.author.add_roles(role)
             print("%s hat jetzt %s" % (ctx.author, role))
-            await ctx.author.create_dm()
-            await ctx.author.dm_channel.send(
-                'Du hast jetzt die Rolle `%s`\nDu kannst sie mit `+rollen remove %s` entfernen' % (role, role)
+            await dm(ctx,
+                f'Du hast jetzt die Rolle `%s`\nDu kannst sie mit `+rollen remove %s` entfernen' % (role, role)
             )
         await ctx.message.add_reaction("✅")
+
     elif status == Status.NOT_FOUND:
-        await ctx.author.create_dm()
-        await ctx.author.dm_channel.send(
+        print(f"%s hat %s nicht gefunden" % (ctx.author, role_name))
+        await dm(ctx,
             f'Die Rolle `%s` gibt es nicht. %s' % (role_name, mod_text)
         )
         await ctx.message.add_reaction("❓")
+
     elif status == Status.FORBIDDEN:
-        await ctx.author.create_dm()
-        await ctx.author.dm_channel.send(
+        print(f"%s darf %s nicht bekommen" % (ctx.author, role_name))
+        await dm(ctx,
             f'Die Rolle `%s` darf nicht vergeben werden. %s' % (role_name, mod_text)
         )
         await ctx.message.add_reaction("❌")
