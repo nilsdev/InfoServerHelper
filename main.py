@@ -130,9 +130,13 @@ async def _role(ctx, mode, role_name):
         await ctx.message.add_reaction("❓")
 
     elif status == Status.FORBIDDEN:
+        if role_name in ["mod", "admin"]:
+            await dm(ctx,
+                f'Bruh du bekommst doch kein %s' % role_name
+            )
         print(f"%s darf %s nicht bekommen" % (ctx.author, role_name))
         await dm(ctx,
-            f'Die Rolle `%s` darf nicht vergeben werden. %s' % (role_name, mod_text)
+            f'die rolle `%s` darf nicht vergeben werden. %s' % (role_name, mod_text)
         )
         await ctx.message.add_reaction("❌")
 
