@@ -90,7 +90,7 @@ async def _role(ctx, mode, role_name):
 
     # get role by name (case-insensitive, check allowed list)
     status = Status.NOT_FOUND
-    roles = opt_guild.roles
+    roles = guild.roles
     for r in roles:
         if r.name.lower() != role_name:
             continue
