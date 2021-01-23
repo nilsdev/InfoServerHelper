@@ -25,12 +25,12 @@ allowed = {
         "maschinenbau",
         "regenerative_energien",
         "wirtschaftsinfo",
-        "motorsport_engineering"
+        "motorsport_engineering",
         "campus",
         "games",
         "linux",
         "sund-xplosion",
-        "mathe_lernen"
+        "mathe_lernen",
     ]
 }
 
