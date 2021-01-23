@@ -41,23 +41,52 @@ class Status(Enum):
 
 mod_text = "Schreibe einem der Mods, falls du dies für einen Fehler hälst."
 
-@bot.command(name='rollen')
-async def _role(ctx, mode, role_name):
-    # make role_name lowercase
-    role_name = role_name.lower()
+async def dm(to, text):
+    await to.create_dm()
+    await to.dm_channel.send(text)
 
+async def prepare(ctx):
     # get guild
     opt_guild = ctx.guild
     if opt_guild == None:
         print("no guild")
-        return
+        return None
 
     # get allowed roles
     guild_id = str(opt_guild.id)
     allowed_here = allowed.get(guild_id)
     if allowed_here == None:
         print("no allowed roles")
+        return None
+
+    return (opt_guild, allowed_here)
+
+@bot.command(name="list")
+async def _list(ctx):
+    # prepare
+    res = await prepare(ctx)
+    if res == None:
+        await dm(ctx.author, "Ein Fehler ist aufgetreten 🙁")
+        return None
+    (_, allowed_here) = res
+
+    res = "Erlaubte Rollen:\n```\n"
+    for r in allowed_here:
+        res += r + '\n'
+    res += "```"
+    await dm(ctx.author, res)
+
+@bot.command(name='rollen')
+async def _role(ctx, mode, role_name):
+    # prepare
+    res = await prepare(ctx)
+    if res == None:
+        await dm(ctx.author, "Ein Fehler ist aufgetreten 🙁")
         return
+    (guild, allowed_here) = res
+
+    # make role_name lowercase
+    role_name = role_name.lower()
 
     # get role by name (case-insensitive, check allowed list)
     status = Status.NOT_FOUND
