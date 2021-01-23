@@ -18,9 +18,19 @@ allowed = {
     ],
     # host hauptserver
     "772795652458938388": [
-        "linux",
-        "mathe_lernen",
+        "smib",
+        "smsb",
+        "eti_fachschaft",
+        "elektrotechnik",
+        "maschinenbau",
+        "regenerative_energien",
+        "wirtschaftsinfo",
+        "motorsport_engineering"
+        "campus",
         "games",
+        "linux",
+        "sund-xplosion",
+        "mathe_lernen"
     ]
 }
 
