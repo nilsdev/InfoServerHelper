@@ -9,7 +9,7 @@ token_file = open("token", "r")
 TOKEN = token_file.read()
 token_file.close()
 
-bot = commands.Bot(command_prefix='+')
+bot = commands.Bot(command_prefix='=')
 
 allowed = {
     # leon's testserver
