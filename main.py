@@ -32,6 +32,8 @@ allowed = {
         "sund-xplosion",
         "mathe_lernen",
         "sport",
+        "allgemein",
+        "faecher",
     ]
 }
 
