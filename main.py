@@ -75,6 +75,7 @@ async def _list(ctx):
         res += r + '\n'
     res += "```"
     await dm(ctx, res)
+    await ctx.message.add_reaction("✅")
 
 @bot.command(name='role')
 async def _role(ctx, mode, role_name):
