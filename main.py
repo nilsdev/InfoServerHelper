@@ -67,6 +67,7 @@ async def _list(ctx):
     res = await prepare(ctx)
     if res == None:
         await dm(ctx, "Du kannst diesen Befehl nur von einem Server aus nutzen 🙁")
+        await ctx.message.add_reaction("❌")
         return None
     (_, allowed_here) = res
 
@@ -78,22 +79,29 @@ async def _list(ctx):
     await ctx.message.add_reaction("✅")
 
 @bot.command(name='role')
-async def _role(ctx, mode, role_name):
+async def _role(ctx, *args):
+    # check invocation
+    if len(args) < 2:
+        await dm(ctx, "Syntax: +role <add|remove> <name>")
+        await ctx.message.add_reaction("❌")
+        return
+    (mode, role_name) = args[0:2]
+
+    if mode not in ["add", "remove"]:
+        await dm(ctx, f"Unbekannter Modus `%s`" % mode)
+        await ctx.message.add_reaction("❌")
+        return
+
     # prepare
     res = await prepare(ctx)
     if res == None:
         await dm(ctx, "Du kannst diesen Befehl nur von einem Server aus nutzen 🙁")
+        await ctx.message.add_reaction("❌")
         return
     (guild, allowed_here) = res
-     
-    # make mode lowercase
+
+    # make args lowercase
     mode = mode.lower()
-
-    if mode not in ["add", "remove"]:
-        await dm(ctx, f"Unbekannter Modus `%s`" % mode)
-        return
-
-    # make role_name lowercase
     role_name = role_name.lower()
 
     # get role by name (case-insensitive, check allowed list)
