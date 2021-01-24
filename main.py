@@ -31,6 +31,7 @@ allowed = {
         "linux",
         "sund-xplosion",
         "mathe_lernen",
+        "sport",
     ]
 }
 
