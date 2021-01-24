@@ -68,7 +68,8 @@ async def _list(ctx):
     res = await prepare(ctx)
     if res == None:
         await dm(ctx, "Du kannst diesen Befehl nur von einem Server aus nutzen 🙁")
-        await ctx.message.add_reaction("❌")
+        # await ctx.message.add_reaction("❌")
+        await ctx.message.delete()
         return None
     (_, allowed_here) = res
 
@@ -77,27 +78,31 @@ async def _list(ctx):
         res += r + '\n'
     res += "```"
     await dm(ctx, res)
-    await ctx.message.add_reaction("✅")
+    # await ctx.message.add_reaction("✅")
+    await ctx.message.delete()
 
 @bot.command(name='role')
 async def _role(ctx, *args):
     # check invocation
     if len(args) < 2:
         await dm(ctx, "Syntax: +role <add|remove> <name>")
-        await ctx.message.add_reaction("❌")
+        # await ctx.message.add_reaction("❌")
+        await ctx.message.delete()
         return
     (mode, role_name) = args[0:2]
 
     if mode not in ["add", "remove"]:
         await dm(ctx, f"Unbekannter Modus `%s`" % mode)
-        await ctx.message.add_reaction("❌")
+        # await ctx.message.add_reaction("❌")
+        await ctx.message.delete()
         return
 
     # prepare
     res = await prepare(ctx)
     if res == None:
         await dm(ctx, "Du kannst diesen Befehl nur von einem Server aus nutzen 🙁")
-        await ctx.message.add_reaction("❌")
+        # await ctx.message.add_reaction("❌")
+        await ctx.message.delete()
         return
     (guild, allowed_here) = res
 
@@ -133,14 +138,17 @@ async def _role(ctx, *args):
             await dm(ctx,
                 f'Du hast jetzt die Rolle `%s`\nDu kannst sie mit `+role remove %s` entfernen' % (role, role)
             )
-        await ctx.message.add_reaction("✅")
+        # await ctx.message.add_reaction("✅")
+        await ctx.message.delete()
+
 
     elif status == Status.NOT_FOUND:
         print(f"%s hat %s nicht gefunden" % (ctx.author, role_name))
         await dm(ctx,
             f'Die Rolle `%s` gibt es nicht. %s' % (role_name, mod_text)
         )
-        await ctx.message.add_reaction("❓")
+        # await ctx.message.add_reaction("❓")
+        await ctx.message.delete()
 
     elif status == Status.FORBIDDEN:
         if role_name in ["mod", "admin"]:
@@ -151,6 +159,7 @@ async def _role(ctx, *args):
         await dm(ctx,
             f'die rolle `%s` darf nicht vergeben werden. %s' % (role_name, mod_text)
         )
-        await ctx.message.add_reaction("❌")
+        # await ctx.message.add_reaction("❌")
+        await ctx.message.delete()
 
 bot.run(TOKEN)
