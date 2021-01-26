@@ -1,0 +1,191 @@
+#!/usr/bin/env python3
+
+import discord
+import json
+import atexit
+from   time    import time
+from   math    import floor
+
+class VoiceUpdate():
+    joined = False
+    channel_id = 0
+    channel_name = ""
+    user_id = 0
+    user_name = ""
+
+    def make(member, before, after):
+        vu = VoiceUpdate()
+        vu.user_id   = str(member.id)
+        vu.user_name = member.name
+        if before.channel == None and after.channel != None:
+            vu.joined       = True
+            vu.channel_id   = str(after.channel.id)
+            vu.channel_name = after.channel.name
+        else:
+            vu.joined       = False
+            vu.channel_id   = str(before.channel.id)
+            vu.channel_name = before.channel.name
+        return vu
+
+    def verb(self):
+        return "joined" if self.joined else "left"
+
+    def __str__(self):
+        return f"{self.user_name} {self.verb()} {self.channel_name}"
+
+userdata_path = "userdata.json"
+try:
+    userdata_file = open(userdata_path, "r+")
+except FileNotFoundError:
+    userdata_file = open(userdata_path, "w+")
+    userdata_file.write("{}")
+    userdata_file.seek(0)
+    print(f"created {userdata_path}")
+
+userdata = json.load(userdata_file)
+
+def save_userdata():
+    userdata_file.seek(0)
+    json.dump(userdata, userdata_file)
+    userdata_file.truncate()
+
+def exit_handler():
+    save_userdata()
+    userdata_file.close()
+
+atexit.register(exit_handler)
+
+def einf(json, key):
+    if key not in json.keys():
+        json[key] = {}
+
+def voice_timer_start(vu):
+    einf(userdata, vu.user_id)
+    userdata[vu.user_id]["started"] = floor(time())
+
+def voice_timer_stop(vu):
+    einf(userdata, vu.user_id)
+    if "started" not in userdata[vu.user_id].keys():
+        return
+    started      = userdata[vu.user_id].pop("started")
+    diff         = floor(time()) - started
+    channel_val  = userdata[vu.user_id].setdefault(vu.channel_id, 0)
+    channel_val += diff
+    userdata[vu.user_id][vu.channel_id] = channel_val
+
+ranks = {
+    "300": ":brown_circle: Bronze IV",
+    "900": ":brown_circle: Bronze III",
+    "1500": ":brown_circle: Bronze II",
+    "2400": ":brown_circle: Bronze I",
+    "3300": ":white_circle: Silber IV",
+    "4200": ":white_circle: Silber III",
+    "5100": ":white_circle: Silber II",
+    "7200": ":yellow_circle: Gold IV",
+    "8400": ":yellow_circle: Gold III",
+    "9600": ":yellow_circle: Gold II",
+    "15000": ":small_blue_diamond: klein-Diamant IV",
+    "18000": ":small_blue_diamond: klein-Diamant III",
+    "21000": ":small_blue_diamond: klein-Diamant II",
+    "24000": ":small_blue_diamond: klein-Diamant I",
+    "27000": ":large_blue_diamond: Diamant IV",
+    "30000": ":large_blue_diamond: Diamant III",
+    "33000": ":large_blue_diamond: Diamant II",
+    "36000": ":large_blue_diamond: Diamant I",
+    "42000": ":black_square_button: klein-Titan IV",
+    "48000": ":black_square_button: klein-Titan III",
+    "54000": ":black_square_button: klein-Titan II",
+    "60000": ":black_square_button: klein-Titan I",
+    "69000": ":white_square_button: Titan IV",
+    "87000": ":white_square_button: Titan III",
+    "105000": ":white_square_button: Titan II",
+    "120000": ":white_square_button: Titan I",
+}
+
+def find_rank(time):
+    for k in ranks.keys():
+        if int(k) >= time:
+            return ranks[k]
+    return ":diamonds: Meister"
+
+async def get_nick(uid, guild):
+    user = await guild.fetch_member(uid)
+    user = user.nick
+    if user == None:
+        user = await bot.fetch_user(uid)
+        user = user.name
+    return user
+
+def tally(data):
+    total = 0
+    for s in data:
+        if s == "started":
+            total += floor(time()) - data[s]
+        else:
+            total += data[s]
+    return total
+
+def format_seconds(sec):
+    (hours, sec) = divmod(sec, 3600)
+    (mins , sec) = divmod(sec,   60)
+    return f"{hours} Stunden, {mins} Minuten, {sec} Sekunden"
+
+@bot.command(name="stats")
+async def _stats(ctx):
+    # indicate working
+    await ctx.channel.trigger_typing()
+
+    reply = ""
+    for u in userdata:
+        user   = await get_nick(int(u), ctx.guild)
+        total  = tally(userdata[u])
+        rank   = find_rank(total)
+        reply += f"{user}: {rank}\n"
+    await ctx.channel.send(reply)
+
+@bot.command(name="top")
+async def _top(ctx, *args):
+    # check invocation
+    if len(args) < 1:
+        await dm(ctx, "Syntax: `+top <anzahl>`")
+        await ctx.message.delete()
+        return
+
+    # indicate working
+    await ctx.channel.trigger_typing()
+
+    data = []
+    for u in userdata:
+        total   = tally(userdata[u])
+        data.append((u, total))
+
+    # sort descending by total time
+    data  = sorted(data, key=lambda x: x[1], reverse=True)[0 : int(args[0])]
+    topn  = int(args[0])
+    embed = discord.Embed(title=f"Top {topn} Voice-User", url="https://http.cat/509")
+    ctr = 0
+
+    # build embed fields
+    for d in data:
+        ctr   += 1
+        name   = await get_nick(int(d[0]), ctx.guild)
+        name   = f"{ctr}. {name}"
+        value  = format_seconds(d[1])
+        embed.add_field(name=name, value=value)
+
+    await ctx.channel.send(embed=embed)
+
+async def on_voice_state_update(self, member, before, after):
+    vu = VoiceUpdate.make(member, before, after)
+    if vu.joined:
+        voice_timer_start(vu)
+    else:
+        voice_timer_stop(vu)
+        if before.channel != None and after.channel != None:
+            voice_timer_start(vu)
+
+    print(f"{str(floor(time()))}: {vu}")
+    save_userdata()
+
+MyBot.on_voice_state_update = on_voice_state_update
+
