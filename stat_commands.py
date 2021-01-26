@@ -33,6 +33,7 @@ class VoiceUpdate():
     def __str__(self):
         return f"{self.user_name} {self.verb()} {self.channel_name}"
 
+# create userdata if not found, else load it
 userdata_path = "userdata.json"
 try:
     userdata_file = open(userdata_path, "r+")
@@ -108,6 +109,7 @@ def find_rank(time):
             return ranks[k]
     return ":diamonds: Meister"
 
+# TODO this sometimes doesn't work
 async def get_nick(uid, guild):
     user = await guild.fetch_member(uid)
     user = user.nick
@@ -135,6 +137,7 @@ async def _stats(ctx):
     # indicate working
     await ctx.channel.trigger_typing()
 
+    # TODO sort descending by rank
     reply = ""
     for u in userdata:
         user   = await get_nick(int(u), ctx.guild)
@@ -182,10 +185,11 @@ async def on_voice_state_update(self, member, before, after):
     else:
         voice_timer_stop(vu)
         if before.channel != None and after.channel != None:
+            # a user has switched to a different channel
             voice_timer_start(vu)
 
     print(f"{str(floor(time()))}: {vu}")
     save_userdata()
 
+# inject the method
 MyBot.on_voice_state_update = on_voice_state_update
-
