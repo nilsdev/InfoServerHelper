@@ -7,6 +7,9 @@ TOKEN = token_file.read()
 token_file.close()
 
 class MyBot(commands.Bot):
+    master_channel = None
+    master_message = None
+    master_topn    = 10
     pass
 
 async def dm(ctx, text):

@@ -3,7 +3,7 @@
 import discord
 import json
 import atexit
-from   time    import time
+from   time    import time, strftime, localtime
 from   math    import floor
 
 class VoiceUpdate():
@@ -112,11 +112,11 @@ def find_rank(time):
 # TODO this sometimes doesn't work
 async def get_nick(uid, guild):
     user = await guild.fetch_member(uid)
-    user = user.nick
-    if user == None:
+    name = user.nick
+    if name == None:
         user = await bot.fetch_user(uid)
-        user = user.name
-    return user
+        name = user.name
+    return name
 
 def tally(data):
     total = 0
@@ -143,27 +143,69 @@ async def _top(ctx, *args):
     # indicate working
     await ctx.channel.trigger_typing()
 
+    embed = await make_top_embed(ctx.guild, int(args[0]))
+    await ctx.channel.send(embed=embed)
+
+async def make_top_embed(guild, topn):
     data = []
     for u in userdata:
         total = tally(userdata[u])
         data.append((u, total))
 
     # sort descending by total time
-    data  = sorted(data, key=lambda x: x[1], reverse=True)[0 : int(args[0])]
-    topn  = int(args[0])
-    embed = discord.Embed(title=f"Top {topn} Voice-User", url="https://http.cat/509")
+    data  = sorted(data, key=lambda x: x[1], reverse=True)
+    data  = data[0 : topn] if topn > 0 else data
+    pfx   = f"Top {topn}"  if topn > 0 else "All"
+    embed = discord.Embed(title=f"{pfx} Voice Users", url="https://http.cat/509")
     ctr = 0
 
     # build embed fields
     for d in data:
         ctr   += 1
-        name   = await get_nick(int(d[0]), ctx.guild)
-        rank   = find_rank(d[1])
-        name   = f"{ctr}. {name}"
-        value  = find_rank(d[1]) + "\n" + format_seconds(d[1])
-        embed.add_field(name=name, value=value)
+        name = await get_nick(int(d[0]), guild)
+        rank  = find_rank(d[1])
+        indic = ":green_circle:" if "started" in userdata[d[0]].keys() else ""
+        name  = f"{ctr}. {name}"
+        value = f"{indic} {find_rank(d[1])}\n{format_seconds(d[1])}"
+        embed.add_field(name=name, value=value, inline=False)
 
-    await ctx.channel.send(embed=embed)
+    return embed
+
+async def refresh_master_message():
+    if bot.master_channel == None:
+        bot.master_channel = await bot.fetch_channel(803555338389291029)
+        print("got master channel")
+
+    # indicate working
+    await bot.master_channel.trigger_typing()
+
+    embed    = await make_top_embed(bot.master_channel.guild, bot.master_topn)
+    content  = strftime("%Y-%m-%d %H:%M:%S", localtime())
+    if bot.master_message == None:
+        bot.master_message = await bot.master_channel.send(content, embed=embed)
+        print("send master message")
+    else:
+        await bot.master_message.edit(content=content, embed=embed)
+        print("edit master message")
+
+def safe_int(text, default):
+    try:
+        default = int(text)
+    except Exception:
+        pass
+    return default
+
+@bot.command(name="settopn")
+async def _settopn(ctx, *args):
+    # check invocation
+    if len(args) < 1:
+        await dm(ctx, "Syntax: `+top <anzahl>`")
+        await ctx.message.delete()
+        return
+
+    bot.master_topn = safe_int(args[0], bot.master_topn)
+    await refresh_master_message()
+    await ctx.message.delete()
 
 async def on_voice_state_update(self, member, before, after):
     vu = VoiceUpdate.make(member, before, after)
@@ -177,6 +219,7 @@ async def on_voice_state_update(self, member, before, after):
 
     print(f"{str(floor(time()))}: {vu}")
     save_userdata()
+    await refresh_master_message()
 
 # inject the method
 MyBot.on_voice_state_update = on_voice_state_update
