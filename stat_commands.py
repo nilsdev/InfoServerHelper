@@ -75,32 +75,32 @@ def voice_timer_stop(vu):
     userdata[vu.user_id][vu.channel_id] = channel_val
 
 ranks = {
-    "300": ":brown_circle: Bronze IV",
-    "900": ":brown_circle: Bronze III",
-    "1500": ":brown_circle: Bronze II",
-    "2400": ":brown_circle: Bronze I",
-    "3300": ":white_circle: Silber IV",
-    "4200": ":white_circle: Silber III",
-    "5100": ":white_circle: Silber II",
-    "7200": ":yellow_circle: Gold IV",
-    "8400": ":yellow_circle: Gold III",
-    "9600": ":yellow_circle: Gold II",
-    "15000": ":small_blue_diamond: klein-Diamant IV",
-    "18000": ":small_blue_diamond: klein-Diamant III",
-    "21000": ":small_blue_diamond: klein-Diamant II",
-    "24000": ":small_blue_diamond: klein-Diamant I",
-    "27000": ":large_blue_diamond: Diamant IV",
-    "30000": ":large_blue_diamond: Diamant III",
-    "33000": ":large_blue_diamond: Diamant II",
-    "36000": ":large_blue_diamond: Diamant I",
-    "42000": ":black_square_button: klein-Titan IV",
-    "48000": ":black_square_button: klein-Titan III",
-    "54000": ":black_square_button: klein-Titan II",
-    "60000": ":black_square_button: klein-Titan I",
-    "69000": ":white_square_button: Titan IV",
-    "87000": ":white_square_button: Titan III",
-    "105000": ":white_square_button: Titan II",
-    "120000": ":white_square_button: Titan I",
+    "18000": ":brown_circle: Bronze IV",
+    "54000": ":brown_circle: Bronze III",
+    "90000": ":brown_circle: Bronze II",
+    "144000": ":brown_circle: Bronze I",
+    "198000": ":white_circle: Silber IV",
+    "252000": ":white_circle: Silber III",
+    "306000": ":white_circle: Silber II",
+    "432000": ":yellow_circle: Gold IV",
+    "504000": ":yellow_circle: Gold III",
+    "576000": ":yellow_circle: Gold II",
+    "900000": ":small_blue_diamond: klein-Diamant IV",
+    "1080000": ":small_blue_diamond: klein-Diamant III",
+    "1260000": ":small_blue_diamond: klein-Diamant II",
+    "1440000": ":small_blue_diamond: klein-Diamant I",
+    "1620000": ":large_blue_diamond: Diamant IV",
+    "1800000": ":large_blue_diamond: Diamant III",
+    "1980000": ":large_blue_diamond: Diamant II",
+    "2160000": ":large_blue_diamond: Diamant I",
+    "2520000": ":black_square_button: klein-Titan IV",
+    "2880000": ":black_square_button: klein-Titan III",
+    "3240000": ":black_square_button: klein-Titan II",
+    "3600000": ":black_square_button: klein-Titan I",
+    "4140000": ":white_square_button: Titan IV",
+    "5220000": ":white_square_button: Titan III",
+    "6300000": ":white_square_button: Titan II",
+    "7200000": ":white_square_button: Titan I",
 }
 
 def find_rank(time):
@@ -172,8 +172,9 @@ async def _top(ctx, *args):
     for d in data:
         ctr   += 1
         name   = await get_nick(int(d[0]), ctx.guild)
+        rank   = find_rank(d[1])
         name   = f"{ctr}. {name}"
-        value  = format_seconds(d[1])
+        value  = find_rank(d[1]) + "\n" + format_seconds(d[1])
         embed.add_field(name=name, value=value)
 
     await ctx.channel.send(embed=embed)
