@@ -132,20 +132,6 @@ def format_seconds(sec):
     (mins , sec) = divmod(sec,   60)
     return f"{hours} Stunden, {mins} Minuten, {sec} Sekunden"
 
-@bot.command(name="stats")
-async def _stats(ctx):
-    # indicate working
-    await ctx.channel.trigger_typing()
-
-    # TODO sort descending by rank
-    reply = ""
-    for u in userdata:
-        user   = await get_nick(int(u), ctx.guild)
-        total  = tally(userdata[u])
-        rank   = find_rank(total)
-        reply += f"{user}: {rank}\n"
-    await ctx.channel.send(reply)
-
 @bot.command(name="top")
 async def _top(ctx, *args):
     # check invocation
@@ -159,7 +145,7 @@ async def _top(ctx, *args):
 
     data = []
     for u in userdata:
-        total   = tally(userdata[u])
+        total = tally(userdata[u])
         data.append((u, total))
 
     # sort descending by total time
