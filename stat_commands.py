@@ -61,8 +61,11 @@ def einf(json, key):
         json[key] = {}
 
 def voice_timer_start(vu):
-    einf(userdata, vu.user_id)
-    userdata[vu.user_id]["started"] = floor(time())
+    if "afk" in vu.channel_name:
+        print("Wird nicht gezählt wegen AFK")
+    else: 
+        einf(userdata, vu.user_id)
+        userdata[vu.user_id]["started"] = floor(time())
 
 def voice_timer_stop(vu):
     einf(userdata, vu.user_id)
