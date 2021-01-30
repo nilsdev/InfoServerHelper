@@ -188,8 +188,13 @@ async def refresh_master_message():
         bot.master_message = await bot.master_channel.send(content, embed=embed)
         print("send master message")
     else:
-        await bot.master_message.edit(content=content, embed=embed)
-        print("edit master message")
+        try:
+            await bot.master_message.edit(content=content, embed=embed)
+            print("edit master message")
+        except Exception as e:
+            print(e)
+            bot.master_message = None
+            await refresh_master_message()
 
 def safe_int(text, default):
     try:
